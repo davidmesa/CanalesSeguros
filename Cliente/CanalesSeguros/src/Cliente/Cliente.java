@@ -41,6 +41,10 @@ public class Cliente {
 	public final static String HMAC = "HMACSHA1";
 	
 	public final static String CERTSRV = "CERTSRV";
+	
+	public final static String TUTELA = "STATTUTELA";
+	
+	public final static String INFO = "INFO";
 
 	// -----------------------------------------------------------------
 	// Atributos
@@ -113,7 +117,24 @@ public class Cliente {
 		}
 		
 		//Etapa 2
-		if(!certificado()) System.out.println("Termina en Certificado");
+		if(!certificado())
+		{
+			System.out.println("Termina en Certificado");
+			System.exit(1);
+		}
+		
+		
+		//Etapa4
+		String respuesta = tutela(numeroTutela);
+		if(respuesta==null)
+		{
+			System.out.println("Termina en tutela");
+			System.exit(1);
+		}
+		else
+		{
+			System.out.println(respuesta);
+		}
 		
 	}
 
@@ -169,6 +190,10 @@ public class Cliente {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean certificado()
 	{
 		try {
@@ -180,6 +205,27 @@ public class Cliente {
 		}
 		return true;
 		
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String tutela(String id){
+		try {
+			out.println(TUTELA+SEPARADOR+id);
+			String respuesta = in.readLine();
+			String [] res = respuesta.split(SEPARADOR);
+			if(res[0].equals(INFO))
+			{
+				return res[1];
+			}
+		}
+		catch (Exception e)
+		{
+			System.err.println("Tutela Exception +"+e.getMessage());
+		}
+		return null;
 	}
 
 

@@ -7,7 +7,8 @@ package Cliente;
  * Las tildes han sido eliminadas por cuestiones de compatibilidad.
  * @author Michael Andres Carrillo Pinzon
  */
-public class Transformacion {
+public class Transformacion 
+{
 
 	/**
 	 * Separador de los bytes.
