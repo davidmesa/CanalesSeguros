@@ -1,3 +1,9 @@
+/**
+ * Universidad de los Andes
+ * Infraestructura Computacional
+ * David Mesa y Miguel Caldas
+ * 2014 - 10
+ */
 package Seguridad;
 
 import java.security.*;
@@ -5,8 +11,22 @@ import javax.crypto.*;
 
 public class Asimetrico {
 
+	// -----------------------------------------------------------------
+	// Constantes
+	// -----------------------------------------------------------------
+
 	private final static String ALGORITMO="RSA"; 
-	
+
+	// -----------------------------------------------------------------
+	// Métodos
+	// -----------------------------------------------------------------
+
+	/**
+	 * 
+	 * @param llavePublica
+	 * @param llaveSecreta
+	 * @return
+	 */
 	public static byte[] cifrarLlaveSecreta(PublicKey llavePublica , byte[] llaveSecreta)
 	{
 		try {

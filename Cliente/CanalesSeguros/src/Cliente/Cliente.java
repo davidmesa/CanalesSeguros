@@ -62,48 +62,47 @@ public class Cliente {
 	// -----------------------------------------------------------------
 
 	/**
-	 * 
+	 * Contiene la direccion del servidor.
 	 */
 	private String servidor;
 
 	/**
-	 * 
+	 * Contiene el puerto del servidor.
 	 */
 	private int puerto;
 
 	/**
-	 * 
+	 * Almacena el socket con el cual se comunica con el servidor.
 	 */
 	private Socket canal;
 
-
 	/**
-	 * 
+	 * Por este medio se escriben strings al servidor.
 	 */
 	private PrintWriter out;
 	
 	/**
-	 * 
+	 * Por este medio se escriben bytes al servidor
 	 */
 	private OutputStream outStream;
 
 	/**
-	 * 
+	 * Por este medio recibe strings desde el servidor
 	 */
 	private BufferedReader in;
 	
 	/**
-	 * 
+	 * Por este medio se reciben bytes desde el servidor.
 	 */
 	private InputStream inStream;
 	
 	/**
-	 * 
+	 * Almacena la llave publica del servidor.
 	 */
 	private PublicKey llavePublicaServidor;
 	
 	/**
-	 * 
+	 * Clase que encripta simetricamente
 	 */
 	private Simetrico simetrico;
 
@@ -112,7 +111,8 @@ public class Cliente {
 	// -----------------------------------------------------------------
 
 	/**
-	 * 
+	 * Constructor de la clase cliente <br>
+	 * Inicializa los atributos principales.
 	 */
 	public Cliente ()
 	{
@@ -129,7 +129,10 @@ public class Cliente {
 	// -----------------------------------------------------------------
 
 	/**
-	 * 
+	 * Metodo encargado de realizar la secuencia necesaria para obtener una respuesta a al estado tutela
+	 * @param logIn LogIn que va a realizar la consulta
+	 * @param clave Clave del usuario que va a realizar la consulta
+	 * @param numeroTutela Numero de tutela a consultar
 	 */
 	public void correr(String logIn, String clave, String numeroTutela)
 	{
@@ -208,8 +211,9 @@ public class Cliente {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Metodo encargado de conectarse con el servidor.
+	 * <b>post: </b> OutStream, Out, InStream, In y canal quedan inicializados.
+	 * @return True si es posible conectar con el servidor, false en el caso contrario.
 	 */
 	private boolean conectar()
 	{
@@ -227,8 +231,8 @@ public class Cliente {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Envia el mensaje de inicio al servidor, este le contesta con un status.
+	 * @return True si la respuesta fue exitosa, false en caso contrario.
 	 */
 	public boolean inicio()
 	{
@@ -244,8 +248,8 @@ public class Cliente {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Metodo encargado de notificarle al servidor que algoritmos van a ser usados.
+	 * @return True si los algoritmos son aceptados, false en caso contrario.
 	 */
 	public boolean algoritmos()
 	{
@@ -262,8 +266,8 @@ public class Cliente {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Metodo encargado de pedir el certificado.
+	 * @return Retorna el certificado o null si no fue posible extraerlo.
 	 */
 	public byte[] certificado()
 	{
@@ -279,9 +283,10 @@ public class Cliente {
 	}
 	
 	/**
-	 * 
-	 * @param llaveSecreta
-	 * @return
+	 * Metodo encargado de enviar la llave secreta al servidor. 
+	 * Esta es encriptada con el llave publica del servidor.
+	 * @param llaveSecreta Llave secreta en bytes.
+	 * @return True si el mensaje fue aceptado o null en caso de lo contrario.
 	 */
 	public boolean enviarLlaveSimetrica(byte[] llaveSecreta)
 	{
@@ -300,10 +305,12 @@ public class Cliente {
 	}
 	
 	/**
-	 * 
-	 * @param login
-	 * @param clave
-	 * @param llaveSecreta
+	 * Metodo encargado de autenticar al usuario con el servidor.
+	 * La clave y el usuario son encriptados usando la llave sercreta.
+	 * Se crea un digest que acompaña al mensaje.
+	 * @param login Login del usuario.
+	 * @param clave Calve del usuario.
+	 * @param llaveSecreta Llave secreta acordada con el servidor.
 	 * @return
 	 */
 	public boolean autenticacion(String login, String clave, byte[] llaveSecreta)
@@ -325,14 +332,15 @@ public class Cliente {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Envia la peticion encriptada de la tutela con la llave secreta.
+	 * Desencripta el mensaje con la llave secreta
+	 * Comprueba que la la respuesta no este alterada por medio de un digest.
+	 * @return La respuesta del mensaje, null en caso de no poder obtenerla.
 	 */
 	public String tutela(String id, byte[] llaveSecreta){
 		try {
 			
 			out.println(TUTELA+SEPARADOR+Transformacion.transformar(simetrico.cifrar(id)));
-			byte[] certEntryBytes = new byte[1024];
 			String respuesta = in.readLine();
 			String [] res = respuesta.split(SEPARADOR);
 			if(res[0].equals(INFO))
@@ -352,18 +360,26 @@ public class Cliente {
 		return null;
 	}
 	
+	/**
+	 * Finaliza la comunicacion con el servidor, informandole del estado final de la comunicacion
+	 * @param estado El estado de la comunicacion.
+	 */
 	public void resultado( boolean estado )
 	{
 		if(estado) out.println(RESULTADO+SEPARADOR+OK+SEPARADOR+FIN);
 		else out.println(RESULTADO+SEPARADOR+ERROR+SEPARADOR+FIN);
 	}
 	
+	/**
+	 * Metodo encargado de cerrar toda la comunicacion con el servidor.
+	 */
 	private void close() {
 		try {
 			in.close();
 			out.close();
 			inStream.close();
 			outStream.close();
+			canal.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -375,8 +391,8 @@ public class Cliente {
 	// -----------------------------------------------------------------
 
 	/**
-	 * 
-	 * @param args
+	 * Metodo Main encargado de pedir los datos basicos y ejecutar el programa
+	 * @param args Argumentos del main, no son utilizados.
 	 */
 	public static void main(String[] args)
 	{

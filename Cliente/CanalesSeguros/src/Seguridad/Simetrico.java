@@ -1,13 +1,39 @@
+/**
+ * Universidad de los Andes
+ * Infraestructura Computacional
+ * David Mesa y Miguel Caldas
+ * 2014 - 10
+ */
 package Seguridad;
 
 import javax.crypto.*;
 
 public class Simetrico {
 
-	private SecretKey desKey; 
+	// -----------------------------------------------------------------
+	// Constantes
+	// -----------------------------------------------------------------
+
 	private final static String ALGORITMO="AES"; 
+
 	private final static String PADDING="AES/ECB/PKCS5Padding";
 
+	// -----------------------------------------------------------------
+	// Atributos
+	// -----------------------------------------------------------------
+
+	/**
+	 * 
+	 */
+	private SecretKey desKey;
+
+	// -----------------------------------------------------------------
+	// Constructores
+	// -----------------------------------------------------------------
+
+	/**
+	 * 
+	 */
 	public Simetrico ()
 	{
 		KeyGenerator keygen;
@@ -19,11 +45,24 @@ public class Simetrico {
 		} 
 	}
 
+	// -----------------------------------------------------------------
+	// Métodos
+	// -----------------------------------------------------------------
+
+	/**
+	 * 
+	 * @return
+	 */
 	public byte[] darLlaveSecreta()
 	{
 		return desKey.getEncoded();
 	}
 
+	/**
+	 * 
+	 * @param mensaje
+	 * @return
+	 */
 	public byte[] cifrar(String mensaje) { 
 		byte [] cipheredText; 
 		try { 
@@ -39,6 +78,11 @@ public class Simetrico {
 		} 
 	}
 
+	/**
+	 * 
+	 * @param cipheredText
+	 * @return
+	 */
 	public String descifrar(byte [] cipheredText) {
 
 		try { 

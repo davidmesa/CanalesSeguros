@@ -1,2 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/Cliente/Cliente.java=UTF-8
+encoding//src/Seguridad/Asimetrico.java=UTF-8
+encoding//src/Seguridad/Certificado.java=UTF-8
+encoding//src/Seguridad/Digest.java=UTF-8
+encoding//src/Seguridad/Simetrico.java=UTF-8
