@@ -9,6 +9,7 @@ package Cliente;
 import java.io.*;
 import java.net.*;
 import java.security.*;
+
 import Seguridad.*;
 
 
@@ -49,6 +50,12 @@ public class Cliente {
 	public final static String TUTELA = "STATTUTELA";
 	
 	public final static String INFO = "INFO";
+	
+	public final static String RESULTADO = "RESULTADO";
+	
+	public final static String ERROR = "ERROR";
+	
+	public final static String FIN = "FIN";
 
 	// -----------------------------------------------------------------
 	// Atributos
@@ -129,6 +136,7 @@ public class Cliente {
 		if( !conectar() ) System.exit(1);
 
 		//Etapa 1
+		
 		if( !inicio() )
 		{
 			System.out.println("Termina en Inicio");
@@ -142,6 +150,7 @@ public class Cliente {
 		}
 		
 		//Etapa 2
+		
 		byte[] certEntryBytes = certificado();
 		if(certEntryBytes == null)
 		{
@@ -173,28 +182,36 @@ public class Cliente {
 			System.exit(1);
 		}
 		
-		autenticacion(logIn, clave, llaveSecreta);
-//		
-//		
-//		//Etapa4
-//		String respuesta = tutela(numeroTutela);
-//		if(respuesta==null)
-//		{
-//			System.out.println("Termina en tutela");
-//			System.exit(1);
-//		}
-//		else
-//		{
-//			System.out.println(respuesta);
-//		}
+		if(!autenticacion(logIn, clave, llaveSecreta))
+		{
+			System.out.println("Termina en autenticacion");
+			System.exit(1);
+		}
 		
+		
+		//Etapa4
+		
+		String respuesta = tutela(numeroTutela, llaveSecreta);
+		if(respuesta==null)
+		{
+			resultado(false);
+			System.out.println("Termina en tutela");
+			System.exit(1);
+		}
+		else
+		{
+			System.out.println(respuesta);
+			resultado(true);
+		}
+		
+		close();
 	}
 
 	/**
 	 * 
 	 * @return
 	 */
-	public boolean conectar()
+	private boolean conectar()
 	{
 		try {
 			canal = new Socket(servidor, puerto);
@@ -311,15 +328,21 @@ public class Cliente {
 	 * 
 	 * @return
 	 */
-	public String tutela(String id){
+	public String tutela(String id, byte[] llaveSecreta){
 		try {
-			out.println(TUTELA+SEPARADOR+id);
+			
+			out.println(TUTELA+SEPARADOR+Transformacion.transformar(simetrico.cifrar(id)));
+			byte[] certEntryBytes = new byte[1024];
 			String respuesta = in.readLine();
-			System.out.println(respuesta);
 			String [] res = respuesta.split(SEPARADOR);
 			if(res[0].equals(INFO))
 			{
-				return res[1];
+				System.out.println(respuesta);
+				String mensaje = res[1];
+				mensaje = simetrico.descifrar(Transformacion.destransformar(mensaje));
+				
+				byte[] digestExterno = Digest.calcular(mensaje, llaveSecreta);
+				if(res[2].equals(Transformacion.transformar(digestExterno))) return mensaje;
 			}
 		}
 		catch (Exception e)
@@ -327,6 +350,23 @@ public class Cliente {
 			System.err.println("Tutela Exception " + e.getMessage());
 		}
 		return null;
+	}
+	
+	public void resultado( boolean estado )
+	{
+		if(estado) out.println(RESULTADO+SEPARADOR+OK+SEPARADOR+FIN);
+		else out.println(RESULTADO+SEPARADOR+ERROR+SEPARADOR+FIN);
+	}
+	
+	private void close() {
+		try {
+			in.close();
+			out.close();
+			inStream.close();
+			outStream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 

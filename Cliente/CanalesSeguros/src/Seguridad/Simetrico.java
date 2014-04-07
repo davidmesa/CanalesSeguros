@@ -37,6 +37,21 @@ public class Simetrico {
 			System.out.println("Cifrado simetrico Excepcion: " + e.getMessage()); 
 			return null; 
 		} 
+	}
+
+	public String descifrar(byte [] cipheredText) {
+
+		try { 
+			Cipher cipher = Cipher.getInstance(PADDING); 
+			cipher.init(Cipher.DECRYPT_MODE, desKey); 
+			byte [] clearText = cipher.doFinal(cipheredText); 
+			String s3 = new String(clearText); 
+			return s3; 
+		} 
+		catch (Exception e) { 
+			System.out.println("Desifrado simetrico Excepcion: " + e.getMessage()); 
+			return null;
+		} 
 	} 
 
 }
