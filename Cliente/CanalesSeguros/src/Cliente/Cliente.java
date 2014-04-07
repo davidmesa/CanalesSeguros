@@ -6,11 +6,11 @@
  */
 package Cliente;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
+import java.security.*;
+import Seguridad.*;
+
 
 /**
  * Clase Cliente
@@ -38,9 +38,13 @@ public class Cliente {
 
 	public final static String ASIMETRICO = "RSA";
 
-	public final static String HMAC = "HMACSHA1";
+	public final static String HMAC = "HMACMD5";
 	
 	public final static String CERTSRV = "CERTSRV";
+	
+	public final static String AUTHENTICATION = "AUT";
+	
+	public final static String SEPARADOR_LOGIN = ",";
 	
 	public final static String TUTELA = "STATTUTELA";
 	
@@ -70,11 +74,31 @@ public class Cliente {
 	 * 
 	 */
 	private PrintWriter out;
+	
+	/**
+	 * 
+	 */
+	private OutputStream outStream;
 
 	/**
 	 * 
 	 */
 	private BufferedReader in;
+	
+	/**
+	 * 
+	 */
+	private InputStream inStream;
+	
+	/**
+	 * 
+	 */
+	private PublicKey llavePublicaServidor;
+	
+	/**
+	 * 
+	 */
+	private Simetrico simetrico;
 
 	// -----------------------------------------------------------------
 	// Constructores
@@ -87,9 +111,10 @@ public class Cliente {
 	{
 		servidor = "infracomp.virtual.uniandes.edu.co";
 		//Puerto sin seguridad
-		puerto = 443;
+		//puerto = 443;
 		//Puerto con seguridad
-		//puerto = 80;
+		puerto = 80;
+		simetrico = new Simetrico();
 	}
 
 	// -----------------------------------------------------------------
@@ -117,24 +142,51 @@ public class Cliente {
 		}
 		
 		//Etapa 2
-		if(!certificado())
+		byte[] certEntryBytes = certificado();
+		if(certEntryBytes == null)
 		{
 			System.out.println("Termina en Certificado");
 			System.exit(1);
 		}
-		
-		
-		//Etapa4
-		String respuesta = tutela(numeroTutela);
-		if(respuesta==null)
-		{
-			System.out.println("Termina en tutela");
-			System.exit(1);
-		}
 		else
 		{
-			System.out.println(respuesta);
+			llavePublicaServidor = Certificado.obtenerLlavePublica(certEntryBytes);
+			if(llavePublicaServidor==null)
+			{
+				System.out.println("Termina en Llave Publica");
+				System.exit(1);
+			}
 		}
+		
+		//Etapa 3
+		
+		byte[] llaveSecreta = simetrico.darLlaveSecreta();
+		if(llaveSecreta == null)
+		{
+			System.out.println("Termina en encode Llave Secreta");
+			System.exit(1);
+		}
+		
+		if(!enviarLlaveSimetrica(llaveSecreta))
+		{
+			System.out.println("Termina en enviar Llave Secreta");
+			System.exit(1);
+		}
+		
+		autenticacion(logIn, clave, llaveSecreta);
+//		
+//		
+//		//Etapa4
+//		String respuesta = tutela(numeroTutela);
+//		if(respuesta==null)
+//		{
+//			System.out.println("Termina en tutela");
+//			System.exit(1);
+//		}
+//		else
+//		{
+//			System.out.println(respuesta);
+//		}
 		
 	}
 
@@ -146,8 +198,10 @@ public class Cliente {
 	{
 		try {
 			canal = new Socket(servidor, puerto);
-			out = new PrintWriter(canal.getOutputStream(), true);
-			in = new BufferedReader(new InputStreamReader(canal.getInputStream()));
+			outStream = canal.getOutputStream();
+			out = new PrintWriter(outStream, true);
+			inStream = canal.getInputStream();
+			in = new BufferedReader(new InputStreamReader(inStream));
 			return true;
 		} catch (Exception e) {
 			System.err.println("Conectar Exception: " + e.getMessage()); 
@@ -194,17 +248,63 @@ public class Cliente {
 	 * 
 	 * @return
 	 */
-	public boolean certificado()
+	public byte[] certificado()
 	{
 		try {
 			out.println(CERTSRV);
-			String respuesta = in.readLine();
-			System.out.println(respuesta);
+			byte[] certEntryBytes = new byte[1024];
+			inStream.read(certEntryBytes); 
+            return certEntryBytes;
 		} catch (Exception e) {
-			System.err.println("Algoritmos Exception: " + e.getMessage());
+			System.err.println("Certificado Exception: " + e.getMessage());
 		}
-		return true;
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param llaveSecreta
+	 * @return
+	 */
+	public boolean enviarLlaveSimetrica(byte[] llaveSecreta)
+	{
+		try{
+			byte[] llaveEncriptada = Asimetrico.cifrarLlaveSecreta(llavePublicaServidor, llaveSecreta);
+			out.println(AUTHENTICATION+SEPARADOR+Transformacion.transformar(llaveEncriptada));
+			String respuesta = in.readLine();
+			String[] partesRespuesta = respuesta.split(SEPARADOR);
+			if(partesRespuesta[0].equals(STATUS) && partesRespuesta[1].equals(OK)) return true;
+		}catch(Exception e)
+		{
+			System.err.println("Enviar Llave Exception: " + e.getMessage());	
+		}
+		return false;
 		
+	}
+	
+	/**
+	 * 
+	 * @param login
+	 * @param clave
+	 * @param llaveSecreta
+	 * @return
+	 */
+	public boolean autenticacion(String login, String clave, byte[] llaveSecreta)
+	{
+		try{
+			String mensaje = login+SEPARADOR_LOGIN+clave;
+			byte[] loginCifrado = simetrico.cifrar(mensaje);
+			byte[] loginDigest = Digest.calcular(mensaje, llaveSecreta);
+			out.println(Transformacion.transformar(loginCifrado)+SEPARADOR+Transformacion.transformar(loginDigest));
+			String respuesta = in.readLine();
+			String[] partesRespuesta = respuesta.split(SEPARADOR);
+			if(partesRespuesta[0].equals(STATUS) && partesRespuesta[1].equals(OK)) return true;
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+			System.err.println("Autenticacion Exception: " + e.getMessage());
+		}
+		return false;
 	}
 	
 	/**
@@ -215,6 +315,7 @@ public class Cliente {
 		try {
 			out.println(TUTELA+SEPARADOR+id);
 			String respuesta = in.readLine();
+			System.out.println(respuesta);
 			String [] res = respuesta.split(SEPARADOR);
 			if(res[0].equals(INFO))
 			{
@@ -223,7 +324,7 @@ public class Cliente {
 		}
 		catch (Exception e)
 		{
-			System.err.println("Tutela Exception +"+e.getMessage());
+			System.err.println("Tutela Exception " + e.getMessage());
 		}
 		return null;
 	}

@@ -1,4 +1,4 @@
-package Cliente;
+package Seguridad;
 
 /**
  * Clase que contiene metodos static que proveen de metodos de transformacion al protocolo.
