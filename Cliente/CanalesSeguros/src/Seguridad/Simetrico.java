@@ -23,7 +23,7 @@ public class Simetrico {
 	// -----------------------------------------------------------------
 
 	/**
-	 * 
+	 * Almacena la llave secreta para encriptar y desencriptar
 	 */
 	private SecretKey desKey;
 
@@ -32,7 +32,8 @@ public class Simetrico {
 	// -----------------------------------------------------------------
 
 	/**
-	 * 
+	 * Constructor de la clase Simetrico.
+	 * Inicializa la llave secreta.
 	 */
 	public Simetrico ()
 	{
@@ -50,8 +51,8 @@ public class Simetrico {
 	// -----------------------------------------------------------------
 
 	/**
-	 * 
-	 * @return
+	 * Devuelve la llave secreta decodificada.
+	 * @return Llave secreta.
 	 */
 	public byte[] darLlaveSecreta()
 	{
@@ -59,9 +60,9 @@ public class Simetrico {
 	}
 
 	/**
-	 * 
-	 * @param mensaje
-	 * @return
+	 * Cifra el mensaje de forma simetrica con la llave secreta
+	 * @param mensaje El mensaje a cifrar
+	 * @return Arreglo de bytes con el mensaje cifrado
 	 */
 	public byte[] cifrar(String mensaje) { 
 		byte [] cipheredText; 
@@ -79,9 +80,9 @@ public class Simetrico {
 	}
 
 	/**
-	 * 
-	 * @param cipheredText
-	 * @return
+	 * Descifra una cadena de bytes a un mensaje con la llave secreta.
+	 * @param cipheredText Cadena de bytes a descifrar.
+	 * @return El mensaje descifrado.
 	 */
 	public String descifrar(byte [] cipheredText) {
 
