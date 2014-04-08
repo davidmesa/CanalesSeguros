@@ -22,9 +22,9 @@ public class Asimetrico {
 	// -----------------------------------------------------------------
 
 	/**
-	 * 
-	 * @param llavePublica
-	 * @param llaveSecreta
+	 * Método que cifra con la llave secreta para que se pueda decifrar unicamente con la llave publica
+	 * @param llavePublica con la cual se va a realizar la operacion de decifrado
+	 * @param llaveSecreta arreglo de bytes con el que se realiza el cifrado de la informacion
 	 * @return
 	 */
 	public static byte[] cifrarLlaveSecreta(PublicKey llavePublica , byte[] llaveSecreta)
