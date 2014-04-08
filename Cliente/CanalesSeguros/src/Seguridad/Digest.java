@@ -23,9 +23,9 @@ public class Digest {
 	
 	/**
 	 * 
-	 * @param buffer
-	 * @param llaveSecreta
-	 * @return
+	 * @param buffer por donde se realizara la operacion del digest
+	 * @param llaveSecreta con la que se realizara la operacion del cifrado
+	 * @return el mensaje final si logra realizarse, nulo de lo contrario
 	 */
 	private static byte[] getKeyedDigest(byte[] buffer, byte[] llaveSecreta) { 
 		try { 
@@ -41,9 +41,9 @@ public class Digest {
 	}
 
 	/**
-	 * 
-	 * @param mensaje
-	 * @param llaveSecreta
+	 * Metodo que obtiene un mensaje de decifrado 
+	 * @param mensaje que se desea calcular por medio del decifrado
+	 * @param llaveSecreta con la que se desea decifrar
 	 * @return
 	 */
 	public static byte[] calcular(String mensaje, byte[] llaveSecreta) { 
