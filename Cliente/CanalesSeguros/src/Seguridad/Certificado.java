@@ -19,9 +19,9 @@ public class Certificado {
 	// -----------------------------------------------------------------
 	
 	/**
-	 * 
-	 * @param certEntryBytes
-	 * @return
+	 * Método encargado de obtener la llave del arreglo de bytes. Esto es con el certificado del servidor que sigue el formato X509
+	 * @param certEntryBytes El certificado enviado por el servidor para verificar la autenticidad del emisor
+	 * @return la llave si la logra obtener o nulo en caso contrario
 	 */
 	public static PublicKey obtenerLlavePublica(byte[] certEntryBytes)
 	{
