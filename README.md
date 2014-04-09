@@ -22,6 +22,8 @@ El cliente y el servidor seguirán el siguiente procedimiento para comunicarse:
 10. El cliente recibe la respuesta y verifica la integridad de la información. 
 11. El cliente responde, OK o ERROR, anunciando el resultado de la transacción y la terminación de la comunicación. 
 
+![](https://github.com/davidmesa/CanalesSeguros/blob/master/Cliente/Protocolo.png?raw=true)
+
 ## Para Tener en Cuenta
 
 <ul>
