@@ -1,7 +1,7 @@
 CanalesSeguros
 ==============
 
-> Universidad de los Andes 201410
+> Universidad de los Andes, InfraComp 201410
 
 ## Implementación del Prototipo
 
