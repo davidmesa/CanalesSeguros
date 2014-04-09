@@ -1,6 +1,8 @@
 CanalesSeguros
 ==============
 
+> Universidad de los Andes 201410
+
 ## Implementación del Prototipo
 
 En esta parte del proyecto nos concentraremos en el sistema que recibe y responde las consultas de los usuarios sobre las 
